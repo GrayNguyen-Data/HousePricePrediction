@@ -8,9 +8,7 @@ import time
 options = uc.ChromeOptions()
 options.add_argument("--disable-blink-features=AutomationControlled")
 
-driver = uc.Chrome(options=options)
-
-try:
+with uc.Chrome(options=options) as driver:
     URL = 'https://batdongsan.com.vn/ban-nha-rieng-tp-hcm'
     driver.get(URL)
     time.sleep(random.uniform(8, 12))
@@ -56,7 +54,7 @@ try:
         for item in items:
             label_tag = item.find('span', class_='re__pr-specs-content-item-title')
             value_tag = item.find('span', class_='re__pr-specs-content-item-value')
-
+            
             if not label_tag or not value_tag:
                 continue
 
@@ -73,11 +71,20 @@ try:
                 bedrooms = value
             elif label == "Số phòng tắm, vệ sinh":
                 bathrooms = value
-            elif label == "Khoảng giá":
-                price = value
-                ext_tag = item.find('span', class_='ext')
+
+        prices = detail_soup.find_all('div', class_='re__pr-short-info-item js__pr-short-info-item')
+
+        for item in prices:
+            label_tag = item.find('span', class_='title')
+            value_tag = item.find('span', class_='value')
+            ext_tag = item.find('span', class_='ext')  # giá/m²
+
+            if label_tag and label_tag.text.strip() == "Khoảng giá":
+                if value_tag:
+                    price = value_tag.text.strip()
                 if ext_tag:
                     price_m2 = ext_tag.text.strip()
+
 
         # In kết quả
         print(f"Title: {title}")
@@ -90,6 +97,3 @@ try:
         print(f"Price: {price}")
         print(f"Price per m2: {price_m2}")
         print(f"Link: {href}\n")
-
-finally:
-    driver.quit()
