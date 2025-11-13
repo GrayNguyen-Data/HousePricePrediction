@@ -17,4 +17,3 @@ def connect():
         return conn, cur
     except Exception as e:
         print(f"Error connecting to database: {e}")
-conn, cur = connect()
